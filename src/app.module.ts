@@ -9,6 +9,10 @@ import { PatientBedHistoryModule } from './patient_bed_history/patient_bed_histo
 import { HospitalStructureInfoModule } from './hospital_structure_info/hospital_structure_info.module';
 import { HospitalEmailModule } from './hospital_email/hospital_email.module';
 import { DeviceStateEntity } from './device_state/device_state.entity';
+import { DevicePositionEntity } from './device_position/device_position.entity';
+import { HospitalStructureInfoEntity } from './hospital_structure_info/hospital_structure_info.entity';
+import { HospitalEmailEntity } from './hospital_email/hospital_email.entity';
+import { PatientProfileEntity } from './patient_profile/patient_profile.entity';
 
 @Module({
   imports: [
@@ -20,7 +24,14 @@ import { DeviceStateEntity } from './device_state/device_state.entity';
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_DATABASE,
-      entities: [DeviceStateEntity],
+      entities: 
+      [
+        DeviceStateEntity,
+        DevicePositionEntity,
+        HospitalStructureInfoEntity,
+        HospitalEmailEntity,
+        PatientProfileEntity,
+      ],
       synchronize: true,
     }),
     DeviceStateModule,

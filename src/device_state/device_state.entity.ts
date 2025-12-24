@@ -1,3 +1,5 @@
+import { DevicePositionEntity } from "src/device_position/device_position.entity";
+import { MeasurementEntity } from "src/measurement/measurement.entity";
 import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, OneToOne, OneToMany } from "typeorm";
 
 @Entity('device_state')
@@ -5,6 +7,12 @@ export class DeviceStateEntity {
     
     @PrimaryGeneratedColumn({ type: 'bigint' })
     device_code: number;
+
+    @OneToOne(() => DevicePositionEntity, pos => pos.deviceState)
+    position: DevicePositionEntity;
+
+    @OneToMany(() => MeasurementEntity, measure => measure.deviceState)
+    measurements: MeasurementEntity[];
 
     @Column({ type: 'enum', enum : ['On', 'Off'], default: 'Off' })
     is_active: 'On' | 'Off';
