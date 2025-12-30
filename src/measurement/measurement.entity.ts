@@ -1,12 +1,16 @@
 import { DeviceStateEntity } from "src/device_state/device_state.entity";
 import { PatientProfileEntity } from "src/patient_profile/patient_profile.entity";
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { WeightMeasurementEntity } from "src/weight_measurement/weight_measurement.entity";
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity('measurement')
 export class MeasurementEntity {
 
     @PrimaryGeneratedColumn({ type: 'bigint' })
     measurement_code: number;
+
+    @OneToOne(() => WeightMeasurementEntity, weight => weight.measurementCode)
+    weights: WeightMeasurementEntity;   
 
     @Column({ type: 'bigint' })
     device_code: number;
@@ -30,9 +34,6 @@ export class MeasurementEntity {
 
     @Column({ type: 'tinyint', nullable: true})
     humidity: number;
-    
-    @Column({ type: 'float', nullable: true})
-    weight: number;
     
     @CreateDateColumn()
     create_at: Date;

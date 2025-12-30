@@ -14,10 +14,10 @@ export class DeviceStateEntity {
     @OneToMany(() => MeasurementEntity, measure => measure.deviceState)
     measurements: MeasurementEntity[];
 
-    @Column({ type: 'enum', enum : ['On', 'Off'], default: 'Off' })
-    is_active: 'On' | 'Off';
+    @Column({ type: 'tinyint', default: 0 })
+    is_active: number;
 
-    @Column()
+    @Column({ nullable: true })
     last_seen_at: Date;
 
     @CreateDateColumn()
@@ -25,4 +25,10 @@ export class DeviceStateEntity {
 
     @UpdateDateColumn()
     update_at: Date;
+
+    @Column({ nullable: true })
+    note: string;
+
+    @Column({ nullable: true })
+    description: string;
 }

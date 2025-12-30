@@ -1,5 +1,6 @@
 import { DevicePositionEntity } from "src/device_position/device_position.entity";
 import { HospitalEmailEntity } from "src/hospital_email/hospital_email.entity";
+import { PatientBedHistoryEntity } from "src/patient_bed_history/patient_bed_history.entity";
 import { PatientProfileEntity } from "src/patient_profile/patient_profile.entity";
 import { Entity, PrimaryGeneratedColumn, Column, JoinColumn, CreateDateColumn, UpdateDateColumn, ManyToOne, OneToMany, OneToOne } from "typeorm";
 
@@ -7,7 +8,7 @@ import { Entity, PrimaryGeneratedColumn, Column, JoinColumn, CreateDateColumn, U
 export class HospitalStructureInfoEntity {
 
     @PrimaryGeneratedColumn({ type: 'bigint' })
-    code: number;
+    hospital_st_code: number;
 
     @OneToMany(() => DevicePositionEntity, position => position.location)
     devicePositions: DevicePositionEntity[];
@@ -15,18 +16,28 @@ export class HospitalStructureInfoEntity {
     @OneToMany(() => PatientProfileEntity, patient => patient.bedCode)
     patients: PatientProfileEntity[];
 
+    @OneToMany(() => PatientBedHistoryEntity, history => history.fromBedCode)
+    fromBedHistory: PatientBedHistoryEntity;
+    
+    @OneToMany(() => PatientBedHistoryEntity, history => history.toBedCode)
+    toBedHistory: PatientBedHistoryEntity;
+
+    @Column({ type: 'bigint' })
+    hospital_code: number;
+
+    @ManyToOne(() => HospitalEmailEntity, email => email.structures)
+    @JoinColumn({ name: 'hospital_code' })
+    hospitalCode: HospitalEmailEntity;
+
     @Column()
     category_name: string;
-
-    @OneToOne(() => HospitalEmailEntity, email => email.hospitalName)
-    hospitalEmail: HospitalEmailEntity;
-
-    @Column({ type: 'tinyint' })
-    level: number;
 
     @ManyToOne(() => HospitalStructureInfoEntity, { nullable: true })
     @JoinColumn({ name: 'parents_code' })
     parents?: HospitalStructureInfoEntity;
+    
+    @Column({ type: 'tinyint' })
+    level: number;
 
     @Column({ type: 'tinyint' })
     sort_order: number;

@@ -1,6 +1,8 @@
 import { HospitalStructureInfoEntity } from "src/hospital_structure_info/hospital_structure_info.entity";
 import { MeasurementEntity } from "src/measurement/measurement.entity";
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { PatientBedHistoryEntity } from "src/patient_bed_history/patient_bed_history.entity";
+import { PatientWarningStateEntity } from "src/patient_warning_state/patient_warning_entity";
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
 @Entity('patient_profile')
 export class PatientProfileEntity {
@@ -10,6 +12,12 @@ export class PatientProfileEntity {
 
     @OneToMany(() => MeasurementEntity, measure => measure.patientCode)
     measurements: MeasurementEntity[];
+
+    @OneToMany(() => PatientBedHistoryEntity, history => history.patientCode)
+    history: PatientBedHistoryEntity[];
+
+    @OneToOne(() => PatientWarningStateEntity, warning => warning.patientProfile)
+    warningState: PatientWarningStateEntity;
 
     @Column()
     patient_name: string;

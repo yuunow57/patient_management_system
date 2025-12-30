@@ -13,6 +13,12 @@ import { DevicePositionEntity } from './device_position/device_position.entity';
 import { HospitalStructureInfoEntity } from './hospital_structure_info/hospital_structure_info.entity';
 import { HospitalEmailEntity } from './hospital_email/hospital_email.entity';
 import { PatientProfileEntity } from './patient_profile/patient_profile.entity';
+import { MeasurementEntity } from './measurement/measurement.entity';
+import { PatientWarningStateModule } from './patient_warning_state/patient_warning_state.module';
+import { WeightMeasurementModule } from './weight_measurement/weight_measurement.module';
+import { PatientBedHistoryEntity } from './patient_bed_history/patient_bed_history.entity';
+import { PatientWarningStateEntity } from './patient_warning_state/patient_warning_entity';
+import { WeightMeasurementEntity } from './weight_measurement/weight_measurement.entity';
 
 @Module({
   imports: [
@@ -31,6 +37,10 @@ import { PatientProfileEntity } from './patient_profile/patient_profile.entity';
         HospitalStructureInfoEntity,
         HospitalEmailEntity,
         PatientProfileEntity,
+        MeasurementEntity,
+        PatientBedHistoryEntity,
+        PatientWarningStateEntity,
+        WeightMeasurementEntity,
       ],
       synchronize: true,
     }),
@@ -41,6 +51,8 @@ import { PatientProfileEntity } from './patient_profile/patient_profile.entity';
     PatientBedHistoryModule,
     HospitalStructureInfoModule,
     HospitalEmailModule,
+    PatientWarningStateModule,
+    WeightMeasurementModule,
   ],
   controllers: [],
   providers: [],
