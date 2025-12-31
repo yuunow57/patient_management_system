@@ -3,7 +3,6 @@ import { Column, CreateDateColumn, Entity, JoinColumn, OneToMany, OneToOne, Prim
 
 @Entity('hospital_email')
 export class HospitalEmailEntity {
-
     @PrimaryGeneratedColumn({ type: 'bigint' })
     hospital_code: number;
 
@@ -30,4 +29,7 @@ export class HospitalEmailEntity {
 
     @Column({ nullable: true })
     description: string;
+
+    @Column({ type: 'tinyint', default: 0 })
+    is_deleted: number;
 }

@@ -25,7 +25,7 @@ export class PatientProfileEntity {
     @Column({ type: 'tinyint' })
     gender: number;
 
-    @Column({ nullable: true })
+    @Column()
     birth_date: string;
 
     @Column({ type: 'bigint' })
