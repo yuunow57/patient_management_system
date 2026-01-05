@@ -11,7 +11,7 @@ export class PatientWarningStateEntity {
     @JoinColumn({ name: 'patient_code' })
     patientProfile: PatientProfileEntity;
 
-    @Column({ type: 'tinyint' })
+    @Column({ type: 'tinyint', default: 0 })
     warning_state: number;
 
     @CreateDateColumn()

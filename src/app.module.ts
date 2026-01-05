@@ -19,6 +19,8 @@ import { WeightMeasurementModule } from './weight_measurement/weight_measurement
 import { PatientBedHistoryEntity } from './patient_bed_history/patient_bed_history.entity';
 import { PatientWarningStateEntity } from './patient_warning_state/patient_warning_entity';
 import { WeightMeasurementEntity } from './weight_measurement/weight_measurement.entity';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { ResponseInterceptor } from './common/interceptors/response.interceptor';
 
 @Module({
   imports: [
@@ -55,6 +57,11 @@ import { WeightMeasurementEntity } from './weight_measurement/weight_measurement
     WeightMeasurementModule,
   ],
   controllers: [],
-  providers: [],
+  providers: [
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: ResponseInterceptor,
+    },
+  ],
 })
 export class AppModule {}
