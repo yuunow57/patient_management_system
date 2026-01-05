@@ -13,8 +13,8 @@ export class CreateStructureDto {
 
     @IsInt()
     @Type(() => Number)
-    @IsNotEmpty()
-    level: number;
+    @IsOptional()
+    level?: number;
     
     @IsInt()
     @Type(() => Number)

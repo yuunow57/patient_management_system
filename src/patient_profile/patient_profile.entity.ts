@@ -23,13 +23,13 @@ export class PatientProfileEntity {
     patient_name: string;
 
     @Column({ type: 'tinyint' })
+    age: number;
+
+    @Column({ type: 'tinyint' })
     gender: number;
 
     @Column()
     birth_date: string;
-
-    @Column({ type: 'bigint' })
-    bed_code: number;
 
     @ManyToOne(() => HospitalStructureInfoEntity, structure => structure.patients)
     @JoinColumn({ name: 'bed_code' })
@@ -61,4 +61,7 @@ export class PatientProfileEntity {
 
     @Column({ nullable: true })
     description: string;
+
+    @Column({ type: 'tinyint', default: 0 })
+    is_deleted: number;
 }

@@ -22,6 +22,9 @@ export class HospitalStructureInfoEntity {
     @OneToMany(() => PatientBedHistoryEntity, history => history.toBedCode)
     toBedHistory: PatientBedHistoryEntity;
 
+    @OneToMany(() => HospitalStructureInfoEntity, child => child.parents)
+    children: HospitalStructureInfoEntity[];
+
     @Column({ type: 'bigint' })
     hospital_code: number;
 
@@ -32,7 +35,7 @@ export class HospitalStructureInfoEntity {
     @Column()
     category_name: string;
 
-    @ManyToOne(() => HospitalStructureInfoEntity, { nullable: true })
+    @ManyToOne(() => HospitalStructureInfoEntity, parent => parent.children, { nullable: true })
     @JoinColumn({ name: 'parents_code' })
     parents?: HospitalStructureInfoEntity;
     
@@ -53,4 +56,7 @@ export class HospitalStructureInfoEntity {
 
     @Column({ nullable: true})
     description: string;
+
+    @Column({ type: 'tinyint', default: 0 })
+    is_deleted: number;
 }
