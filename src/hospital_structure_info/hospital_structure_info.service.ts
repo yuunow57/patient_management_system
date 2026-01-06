@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { HospitalStructureInfoEntity } from './hospital_structure_info.entity';
-import { Repository } from 'typeorm';
+import { IsNull, Repository } from 'typeorm';
 import { CreateStructureDto } from './dto/create-structure.dto';
 import { HospitalEmailEntity } from 'src/hospital_email/hospital_email.entity';
 
@@ -17,6 +17,7 @@ export class HospitalStructureInfoService {
     // POST /hospital/structure
     async create(dto: CreateStructureDto) {
         let level = 1;
+        let sort_order = 0;
         let parent: HospitalStructureInfoEntity | null = null;
 
         const hospital = await this.emailRepository.findOneBy({ hospital_code: dto.hospital_code });
@@ -24,14 +25,27 @@ export class HospitalStructureInfoService {
         
         if (dto.parents_code) {
             parent = await this.structureRepository.findOne({
-                where: {
-                    hospital_st_code: dto.parents_code
-                }
+                where: { hospital_st_code: dto.parents_code }
             });
 
             if (!parent) throw new NotFoundException('부모 레벨이 존재하지 않습니다.');
 
+            const childCount = await this.structureRepository.count({
+                where: { 
+                    parents: { hospital_st_code: parent.hospital_st_code }
+                }
+            });
+
             level = parent.level + 1;
+            sort_order = childCount + 1;
+        } else {
+            const partCount = await this.structureRepository.count({
+                where: {
+                    hospitalCode: { hospital_code: dto.hospital_code },
+                    parents: IsNull(),
+                }
+            });
+            sort_order = partCount + 1;
         }
 
         const structure = await this.structureRepository.create({
@@ -39,7 +53,7 @@ export class HospitalStructureInfoService {
             category_name: dto.category_name,
             level,
             parents: parent ?? undefined,
-            sort_order: dto.sort_order,
+            sort_order,
             note: dto.note,
             description: dto.description,
         });
@@ -51,7 +65,7 @@ export class HospitalStructureInfoService {
             hospital_code: structure.hospital_code,
             category_name: structure.category_name,
             level: structure.level,
-            parents_code: structure.parents?.hospital_st_code,
+            parents_code: structure.parents?.hospital_st_code ?? null,
             sort_order: structure.sort_order,
             create_at: structure.create_at,
             note: structure.note,

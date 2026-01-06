@@ -20,11 +20,6 @@ export class CreateStructureDto {
     @Type(() => Number)
     @IsOptional()
     parents_code?: number;
-    
-    @IsInt()
-    @Type(() => Number)
-    @IsNotEmpty()
-    sort_order: number;
 
     @IsString()
     @IsOptional()
