@@ -1,9 +1,10 @@
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PatientProfileEntity } from './patient_profile.entity';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { CreateProfileDto } from './dto/create-profile.dto';
 import { HospitalStructureInfoEntity } from 'src/hospital_structure_info/hospital_structure_info.entity';
+import { PatientWarningStateService } from 'src/patient_warning_state/patient_warning_state.service';
 
 @Injectable()
 export class PatientProfileService {
@@ -11,54 +12,61 @@ export class PatientProfileService {
         @InjectRepository(PatientProfileEntity)
         private readonly profileRepository: Repository<PatientProfileEntity>,
         @InjectRepository(HospitalStructureInfoEntity)
-        private readonly structureRepository: Repository<HospitalStructureInfoEntity>
+        private readonly structureRepository: Repository<HospitalStructureInfoEntity>,
+        private readonly warningService: PatientWarningStateService,
+        private readonly dataSource: DataSource,
     ) {}
 
     // POST /patient/profile
     async create(dto: CreateProfileDto) {
-        const bed = await this.structureRepository.findOneBy ({ hospital_st_code: dto.bed_code });
-        if (!bed) throw new NotFoundException('존재하지 않는 침상입니다.');
+        return await this.dataSource.transaction(async manager => {
 
-        const patient = await this.profileRepository.findOne({
-            where: {
-                bedCode: { hospital_st_code: dto.bed_code },
-                is_deleted: 0,
-            }
+            const bed = await manager.findOneBy(HospitalStructureInfoEntity, { hospital_st_code: dto.bed_code });
+            if (!bed) throw new NotFoundException('존재하지 않는 침상입니다.');
+            
+            const patient = await manager.findOne(PatientProfileEntity, {
+                where: {
+                    bedCode: { hospital_st_code: dto.bed_code },
+                    is_deleted: 0,
+                }
+            });
+            
+            if (patient) throw new ConflictException('사용중인 침상입니다.');
+            
+            const newPatient = await manager.create(PatientProfileEntity, {
+                patient_name: dto.patient_name,
+                gender: dto.gender,
+                age: dto.age,
+                birth_date: dto.birth_date,
+                bedCode: bed,
+                nurse: dto.nurse,
+                doctor: dto.doctor,
+                diagnosis: dto.diagnosis,
+                allergy: dto.allergy,
+                significant: dto.significant,
+            });
+            
+            const savePatient = await manager.save(PatientProfileEntity, newPatient);
+            const patientWarning = await this.warningService.createWithManager(manager, savePatient);
+            
+            return {
+                patient_code: newPatient.patient_code,
+                patient_name: newPatient.patient_name,
+                gender: newPatient.gender,
+                age: newPatient.age,
+                birth_date: newPatient.birth_date,
+                bed_code: newPatient.bedCode.hospital_st_code,
+                nurse: newPatient.nurse,
+                doctor: newPatient.doctor,
+                diagnosis: newPatient.diagnosis,
+                allergy: newPatient.allergy,
+                significant: newPatient.significant,
+                create_at: newPatient.create_at,
+                note: newPatient.note,
+                description: newPatient.description,
+                warning_state: patientWarning,
+            };
         });
-        
-        if (patient) throw new ConflictException('사용중인 침상입니다.');
-
-        const newPatient = await this.profileRepository.create({
-            patient_name: dto.patient_name,
-            gender: dto.gender,
-            age: dto.age,
-            birth_date: dto.birth_date,
-            bedCode: bed,
-            nurse: dto.nurse,
-            doctor: dto.doctor,
-            diagnosis: dto.diagnosis,
-            allergy: dto.allergy,
-            significant: dto.significant,
-        });
-
-        await this.profileRepository.save(newPatient);
-
-        return {
-            patient_code: newPatient.patient_code,
-            patient_name: newPatient.patient_name,
-            gender: newPatient.gender,
-            age: newPatient.age,
-            birth_date: newPatient.birth_date,
-            bed_code: newPatient.bedCode.hospital_st_code,
-            nurse: newPatient.nurse,
-            doctor: newPatient.doctor,
-            diagnosis: newPatient.diagnosis,
-            allergy: newPatient.allergy,
-            significant: newPatient.significant,
-            create_at: newPatient.create_at,
-            note: newPatient.note,
-            description: newPatient.description,
-        }
     }
 
     //GET /patient/profile?patient_code={patient_code}

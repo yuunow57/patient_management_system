@@ -4,9 +4,15 @@ import { PatientProfileService } from './patient_profile.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { PatientProfileEntity } from './patient_profile.entity';
 import { HospitalStructureInfoEntity } from 'src/hospital_structure_info/hospital_structure_info.entity';
+import { PatientWarningStateEntity } from 'src/patient_warning_state/patient_warning_entity';
+import { PatientWarningStateModule } from 'src/patient_warning_state/patient_warning_state.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([PatientProfileEntity, HospitalStructureInfoEntity])],
+  imports: [
+    TypeOrmModule.forFeature([PatientProfileEntity, HospitalStructureInfoEntity, PatientWarningStateEntity, 
+    ]),
+    PatientWarningStateModule,
+],
   controllers: [PatientProfileController],
   providers: [PatientProfileService]
 })

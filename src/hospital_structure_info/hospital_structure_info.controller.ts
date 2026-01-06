@@ -1,7 +1,8 @@
-import { Body, Controller, Get, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Query } from '@nestjs/common';
 import { HospitalStructureInfoService } from './hospital_structure_info.service';
 import { ResponseMessage } from 'src/common/decorators/response-message.decorator';
 import { CreateStructureDto } from './dto/create-structure.dto';
+import { UpdateStructureDto } from './dto/update-structure.dto';
 
 @Controller('hospital')
 export class HospitalStructureInfoController {
@@ -16,6 +17,14 @@ export class HospitalStructureInfoController {
 
         return structure;
     }
+
+    @ResponseMessage('병원구조정보 층별 조회 성공')
+    @Get('structure')
+    async informationByFloor(@Query('hospital_st_code') floorCode: number) {
+        const info = await this.structureService.informationByFloor(floorCode);
+
+        return info;
+    } 
 
     @ResponseMessage('병원구조정보 병동 조회 성공')
     @Get('structure/part')
@@ -33,4 +42,25 @@ export class HospitalStructureInfoController {
         return floors;
     }
 
+    @ResponseMessage('병원구조정보 층별 환자 목록 조회 성공')
+    @Get('structure/patient-list')
+    async patientsByFloor(@Query('hospital_st_code') floorCode: number) {
+        const patients = await this.structureService.patientsByFloor(floorCode);
+
+        return patients;
+    }
+
+    @ResponseMessage('병동이름 수정 성공')
+    @Put('structure/update')
+    async partUpdate(@Body() dto: UpdateStructureDto) {
+        const part = await this.structureService.partUpdate(dto);
+
+        return part;
+    }
+
+    @ResponseMessage('병동 삭제 성공')
+    @Delete('structure/delete')
+    async partDelete(@Param('hospital_st_code') partCode: number) {
+        return this.structureService.delete(partCode);
+    }
 }
