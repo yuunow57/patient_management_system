@@ -73,9 +73,14 @@ export class HospitalStructureInfoService {
         });
 
         return {
-            hospital_code: hospitalCode,
+            hospital_code: Number(hospitalCode),
             hospital_name: email.hospital_name,
-            parts,
+            parts: parts.map(part => ({
+                hospital_code: Number(part.hospital_st_code),
+                category_name: part.category_name,
+                sort_order: part.sort_order,
+            }))
+            //parts,
         }
     }
 
@@ -101,8 +106,8 @@ export class HospitalStructureInfoService {
         return {
             category_name: structure.category_name,
             floors: floors.map(floor => ({
-                parents_code: floor.parents?.hospital_st_code,
-                hospital_st_code: floor.hospital_st_code,
+                parents_code: Number(floor.parents?.hospital_st_code),
+                hospital_st_code: Number(floor.hospital_st_code),
                 category_name: floor.category_name,
                 sort_order: floor.sort_order,
             })),
