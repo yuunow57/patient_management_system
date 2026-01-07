@@ -1,7 +1,8 @@
-import { Body, Controller, Get, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Query } from '@nestjs/common';
 import { PatientProfileService } from './patient_profile.service';
 import { ResponseMessage } from 'src/common/decorators/response-message.decorator';
 import { CreateProfileDto } from './dto/create-profile.dto';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 
 @Controller('patient')
 export class PatientProfileController {
@@ -23,5 +24,19 @@ export class PatientProfileController {
         const patient = await this.profileService.findOne(patientCode);
 
         return patient;
+    }
+
+    @ResponseMessage('환자정보 수정 성공')
+    @Put('profile/update')
+    async update(@Body() dto: UpdateProfileDto) {
+        const patient = await this.profileService.update(dto);
+
+        return patient;
+    }
+
+    @ResponseMessage('환자정보 삭제 성공')
+    @Delete('profile/delete/:patient_code')
+    async delete(@Param('patient_code') patientCode: number) {
+        return this.profileService.delete(patientCode);
     }
 }

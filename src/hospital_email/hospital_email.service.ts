@@ -22,7 +22,7 @@ export class HospitalEmailService {
         const salt = await bcrypt.genSalt();
         const hashedPassword = await bcrypt.hash(dto.hospital_password, salt);
 
-        const newEmail = await this.emailRepository.create({
+        const newEmail = this.emailRepository.create({
             hospital_id: dto.hospital_id,
             hospital_password: hashedPassword,
             hospital_name: dto.hospital_name,

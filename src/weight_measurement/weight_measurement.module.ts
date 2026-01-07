@@ -7,6 +7,7 @@ import { WeightMeasurementEntity } from './weight_measurement.entity';
 @Module({
   imports: [TypeOrmModule.forFeature([WeightMeasurementEntity])],
   controllers: [WeightMeasurementController],
-  providers: [WeightMeasurementService]
+  providers: [WeightMeasurementService],
+  exports: [WeightMeasurementService]
 })
 export class WeightMeasurementModule {}

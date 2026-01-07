@@ -52,7 +52,7 @@ export class HospitalStructureInfoService {
             sort_order = partCount + 1;
         }
 
-        const structure = await this.structureRepository.create({
+        const structure = this.structureRepository.create({
             hospitalCode: hospital,
             category_name: dto.category_name,
             level,
@@ -264,6 +264,6 @@ export class HospitalStructureInfoService {
 
         part.is_deleted = 1;
 
-        return this.structureRepository.save(part);
+        await this.structureRepository.save(part);
     }
 }

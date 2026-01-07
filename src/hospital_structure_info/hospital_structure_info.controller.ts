@@ -59,7 +59,7 @@ export class HospitalStructureInfoController {
     }
 
     @ResponseMessage('병동 삭제 성공')
-    @Delete('structure/delete')
+    @Delete('structure/delete/:hospital_st_code')
     async partDelete(@Param('hospital_st_code') partCode: number) {
         return this.structureService.delete(partCode);
     }

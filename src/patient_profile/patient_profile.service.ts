@@ -5,6 +5,8 @@ import { DataSource, Repository } from 'typeorm';
 import { CreateProfileDto } from './dto/create-profile.dto';
 import { HospitalStructureInfoEntity } from 'src/hospital_structure_info/hospital_structure_info.entity';
 import { PatientWarningStateService } from 'src/patient_warning_state/patient_warning_state.service';
+import { UpdateProfileDto } from './dto/update-profile.dto';
+import { PatientBedHistoryService } from 'src/patient_bed_history/patient_bed_history.service';
 
 @Injectable()
 export class PatientProfileService {
@@ -13,7 +15,10 @@ export class PatientProfileService {
         private readonly profileRepository: Repository<PatientProfileEntity>,
         @InjectRepository(HospitalStructureInfoEntity)
         private readonly structureRepository: Repository<HospitalStructureInfoEntity>,
+
         private readonly warningService: PatientWarningStateService,
+        private readonly historyService: PatientBedHistoryService,
+
         private readonly dataSource: DataSource,
     ) {}
 
@@ -33,7 +38,7 @@ export class PatientProfileService {
             
             if (patient) throw new ConflictException('사용중인 침상입니다.');
             
-            const newPatient = await manager.create(PatientProfileEntity, {
+            const newPatient = manager.create(PatientProfileEntity, {
                 patient_name: dto.patient_name,
                 gender: dto.gender,
                 age: dto.age,
@@ -95,5 +100,77 @@ export class PatientProfileService {
             note: patient.note,
             description: patient.description,
         }
+    }
+
+    // PUT /patient/profile/update
+    async update(dto: UpdateProfileDto) {
+        return await this.dataSource.transaction(async manager => {
+
+            const patient = await manager.findOne(PatientProfileEntity, { 
+                where: { patient_code: dto.patient_code },
+                relations: ['bedCode'],
+             });
+
+            if (!patient) throw new NotFoundException('존재하지 않는 환자입니다');
+             
+            const oldBedCode = patient.bedCode.hospital_st_code;
+            
+            if (dto.bed_code != oldBedCode) {
+                const newBed = await manager.findOne(HospitalStructureInfoEntity, {
+                    where: { hospital_st_code: dto.bed_code }
+                });
+
+                if (!newBed) throw new NotFoundException('존재하지 않는 침상 입니다.');
+
+                patient.bedCode = newBed;
+
+                await this.historyService.createWithManager(manager, {
+                    patient_code: patient.patient_code,
+                    from_bed_code: oldBedCode,
+                    to_bed_code: dto.bed_code,
+                });
+            }
+    
+            patient.patient_name = dto.patient_name;
+            patient.gender = dto.gender;
+            patient.age = dto.age;
+            patient.birth_date = dto.birth_date;
+            patient.nurse = dto.nurse ?? patient.nurse;
+            patient.doctor = dto.doctor ?? patient.doctor;
+            patient.diagnosis = dto.diagnosis ?? patient.diagnosis;
+            patient.allergy = dto.allergy ?? patient.allergy;
+            patient.significant = dto.significant ?? patient.significant;
+            patient.note = dto.note ?? patient.note;
+            patient.description = dto.description ?? patient.description;
+            
+            const updatePatient = await manager.save(PatientProfileEntity, patient);
+    
+            return {
+                patient_code: updatePatient.patient_code,
+                patient_name: updatePatient.patient_name,
+                gender: updatePatient.gender,
+                age: updatePatient.age,
+                birth_date: updatePatient.birth_date,
+                bed_code: updatePatient.bedCode.hospital_st_code,
+                nurse: updatePatient.nurse,
+                doctor: updatePatient.doctor,
+                diagnosis: updatePatient.diagnosis,
+                allergy: updatePatient.allergy,
+                significant: updatePatient.significant,
+                update_at: updatePatient.update_at,
+                note: updatePatient.note,
+                description: updatePatient.description,
+            };
+        })
+    }
+
+    // DELETE /patient/profile/delete/{patient_code}
+    async delete(patientCode: number) {
+        const patient = await this.profileRepository.findOne({ where: { patient_code: patientCode } });
+        if (!patient) throw new NotFoundException('존재하지 않는 환자 입니다.');
+
+        patient.is_deleted = 1;
+
+        await this.profileRepository.save(patient);
     }
 }

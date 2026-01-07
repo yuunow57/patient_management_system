@@ -1,16 +1,12 @@
 import { Type } from "class-transformer";
-import { IsInt, IsNotEmpty, IsNumber, IsOptional, IsString } from "class-validator";
+import { IsArray, IsInt, IsNotEmpty, IsNumber, IsOptional, IsString, ValidateNested } from "class-validator";
+import { WeightValueDto } from "./create-weight.dto";
 
 export class CreateMeasurementDto {
     @IsInt()
     @Type(() => Number)
     @IsNotEmpty()
     device_code: number;
-    
-    @IsInt()
-    @Type(() => Number)
-    @IsNotEmpty()
-    patient_code: number;
 
     @IsNumber()
     @Type(() => Number)
@@ -26,6 +22,12 @@ export class CreateMeasurementDto {
     @Type(() => Number)
     @IsOptional()
     humidity?: number;
+
+    @IsArray()
+    @ValidateNested({ each: true })
+    @Type(() => WeightValueDto)
+    @IsOptional()
+    weights?: WeightValueDto[];
 
     @IsString()
     @IsOptional()

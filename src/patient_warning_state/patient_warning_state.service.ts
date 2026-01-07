@@ -18,7 +18,7 @@ export class PatientWarningStateService {
         const exists = await manager.findOneBy(PatientWarningStateEntity, { patient_code: patient.patient_code });
         if (exists) throw new ConflictException('이미 존재하는 회원입니다.');
 
-        const warning = await manager.create(PatientWarningStateEntity, {
+        const warning = manager.create(PatientWarningStateEntity, {
             patientProfile: patient,
         });
 
