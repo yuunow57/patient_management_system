@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { MeasurementEntity } from './measurement.entity';
 import { Repository } from 'typeorm';
 import { CreateMeasurementDto } from './dto/create-measurement.dto';
-import { DataSource } from 'typeorm/browser';
+import { DataSource } from 'typeorm';
 import { DeviceStateEntity } from 'src/device_state/device_state.entity';
 import { PatientProfileEntity } from 'src/patient_profile/patient_profile.entity';
 import { WeightMeasurementEntity } from 'src/weight_measurement/weight_measurement.entity';
