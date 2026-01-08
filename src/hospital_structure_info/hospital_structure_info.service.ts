@@ -156,8 +156,8 @@ export class HospitalStructureInfoService {
             patients: patients.map(p => ({
                 patient_code: Number(p.patient_code),
                 patient_name: p.patient_name,
-                patient_room: p.bedCode.parents?.category_name,
-                patient_bed: p.bedCode.category_name,
+                patient_room: p.bedCode?.parents?.category_name,
+                patient_bed: p.bedCode?.category_name,
                 patient_warning: p.warningState.warning_state,
             })),
         };
@@ -194,6 +194,8 @@ export class HospitalStructureInfoService {
         const patientMap = new Map<number, any>();
 
         patients.forEach(p => {
+            if (!p.bedCode) return;
+            
             patientMap.set(p.bedCode.hospital_st_code, {
                 patient_code: p.patient_code,
                 patient_name: p.patient_name,
