@@ -21,11 +21,11 @@ export class PatientBedHistoryService {
     ) {
         const history = manager.create(PatientBedHistoryEntity, {
             patient: { patient_code: params.patient_code },
-            fromBed: params.from_bed_code
-                ? { structure_code: params.from_bed_code }
+            fromBedCode: params.from_bed_code
+                ? { hospital_st_code: params.from_bed_code }
                 : null,
-            toBed: params.to_bed_code
-                ? { structure_code: params.to_bed_code }
+            toBedCode: params.to_bed_code
+                ? { hospital_st_code: params.to_bed_code }
                 : null,
             });
 

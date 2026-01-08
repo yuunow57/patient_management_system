@@ -14,9 +14,9 @@ export class PatientBedHistoryEntity {
 
     @ManyToOne(() => HospitalStructureInfoEntity, structure => structure.fromBedHistory, { nullable : true })
     @JoinColumn({ name: 'from_bed_code' })
-    fromBedCode: HospitalStructureInfoEntity;
+    fromBedCode: HospitalStructureInfoEntity | null;
     
     @ManyToOne(() => HospitalStructureInfoEntity, structure => structure.toBedHistory, { nullable: true })
     @JoinColumn({ name: 'to_bed_code' })
-    toBedCode: HospitalStructureInfoEntity;
+    toBedCode: HospitalStructureInfoEntity | null;
 }
