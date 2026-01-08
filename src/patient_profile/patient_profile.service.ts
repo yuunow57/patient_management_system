@@ -61,7 +61,7 @@ export class PatientProfileService {
                 gender: newPatient.gender,
                 age: newPatient.age,
                 birth_date: newPatient.birth_date,
-                bed_code: newPatient.bedCode.hospital_st_code,
+                bed_code: newPatient.bedCode?.hospital_st_code,
                 nurse: newPatient.nurse,
                 doctor: newPatient.doctor,
                 diagnosis: newPatient.diagnosis,
@@ -83,7 +83,7 @@ export class PatientProfileService {
         });
         if (!patient) throw new NotFoundException('존재하지 않는 환자입니다.');
 
-        const bed = await this.structureRepository.findOneBy({ hospital_st_code: patient.bedCode.hospital_st_code });
+        const bed = await this.structureRepository.findOneBy({ hospital_st_code: patient.bedCode?.hospital_st_code });
         if (!bed) throw new NotFoundException('존재하지 않는 침상입니다.');
 
         return {
@@ -92,7 +92,7 @@ export class PatientProfileService {
             gender: patient.gender,
             age: patient.age,
             birth_date: patient.birth_date,
-            bed_code: patient.bedCode.hospital_st_code,
+            bed_code: patient.bedCode?.hospital_st_code,
             nurse: patient.nurse,
             doctor: patient.doctor,
             diagnosis: patient.diagnosis,
@@ -114,7 +114,7 @@ export class PatientProfileService {
 
             if (!patient) throw new NotFoundException('존재하지 않는 환자입니다');
              
-            const oldBedCode = patient.bedCode.hospital_st_code;
+            const oldBedCode = patient.bedCode?.hospital_st_code;
             
             if (dto.bed_code != oldBedCode) {
                 const newBed = await manager.findOne(HospitalStructureInfoEntity, {
@@ -127,8 +127,8 @@ export class PatientProfileService {
 
                 await this.historyService.createWithManager(manager, {
                     patient_code: patient.patient_code,
-                    from_bed_code: oldBedCode,
-                    to_bed_code: dto.bed_code,
+                    from_bed_code: oldBedCode ?? null,
+                    to_bed_code: dto.bed_code ?? null,
                 });
             }
     
@@ -152,7 +152,7 @@ export class PatientProfileService {
                 gender: updatePatient.gender,
                 age: updatePatient.age,
                 birth_date: updatePatient.birth_date,
-                bed_code: updatePatient.bedCode.hospital_st_code,
+                bed_code: updatePatient.bedCode?.hospital_st_code,
                 nurse: updatePatient.nurse,
                 doctor: updatePatient.doctor,
                 diagnosis: updatePatient.diagnosis,
@@ -167,10 +167,14 @@ export class PatientProfileService {
 
     // DELETE /patient/profile/delete/{patient_code}
     async delete(patientCode: number) {
-        const patient = await this.profileRepository.findOne({ where: { patient_code: patientCode } });
+        const patient = await this.profileRepository.findOne({ 
+            where: { patient_code: patientCode, is_deleted: 0 },
+            relations: ['bedCode'],
+         });
         if (!patient) throw new NotFoundException('존재하지 않는 환자 입니다.');
 
         patient.is_deleted = 1;
+        patient.bedCode = null;
 
         await this.profileRepository.save(patient);
     }
@@ -200,7 +204,7 @@ export class PatientProfileService {
         });
 
         const usedBedCodes = new Set(
-            usedPatients.map(p => p.bedCode.hospital_st_code),
+            usedPatients.map(p => p.bedCode?.hospital_st_code),
         );
 
         const emptyBeds = beds.filter(

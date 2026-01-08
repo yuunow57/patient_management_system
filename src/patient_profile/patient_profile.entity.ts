@@ -13,7 +13,7 @@ export class PatientProfileEntity {
     @OneToMany(() => MeasurementEntity, measure => measure.patientCode)
     measurements: MeasurementEntity[];
 
-    @OneToMany(() => PatientBedHistoryEntity, history => history.patientCode)
+    @OneToMany(() => PatientBedHistoryEntity, history => history.patient)
     history: PatientBedHistoryEntity[];
 
     @OneToOne(() => PatientWarningStateEntity, warning => warning.patientProfile)
@@ -31,9 +31,9 @@ export class PatientProfileEntity {
     @Column()
     birth_date: string;
 
-    @ManyToOne(() => HospitalStructureInfoEntity, structure => structure.patients)
+    @ManyToOne(() => HospitalStructureInfoEntity, structure => structure.patients, { nullable: true })
     @JoinColumn({ name: 'bed_code' })
-    bedCode: HospitalStructureInfoEntity;
+    bedCode: HospitalStructureInfoEntity | null;
 
     @Column()
     nurse: string;

@@ -8,24 +8,15 @@ export class PatientBedHistoryEntity {
     @PrimaryGeneratedColumn({ type: 'bigint' })
     history_code: number;
 
-    @Column({ type: 'bigint' })
-    patient_code: number;
-
     @ManyToOne(() => PatientProfileEntity, patient => patient.history)
     @JoinColumn({ name: 'patient_code' })
-    patientCode: PatientProfileEntity;
+    patient: PatientProfileEntity;
 
-    @Column({ type: 'bigint' })
-    from_bed_code: number;
-
-    @ManyToOne(() => HospitalStructureInfoEntity, structure => structure.fromBedHistory)
+    @ManyToOne(() => HospitalStructureInfoEntity, structure => structure.fromBedHistory, { nullable : true })
     @JoinColumn({ name: 'from_bed_code' })
     fromBedCode: HospitalStructureInfoEntity;
     
-    @Column({ type: 'bigint' })
-    to_bed_code: number;
-
-    @ManyToOne(() => HospitalStructureInfoEntity, structure => structure.toBedHistory)
+    @ManyToOne(() => HospitalStructureInfoEntity, structure => structure.toBedHistory, { nullable: true })
     @JoinColumn({ name: 'to_bed_code' })
     toBedCode: HospitalStructureInfoEntity;
 }

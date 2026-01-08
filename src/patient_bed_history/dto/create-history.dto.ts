@@ -10,12 +10,12 @@ export class CreateHistoryDto {
     @IsInt()
     @Type(() => Number)
     @IsNotEmpty()
-    from_bed_code: number;
+    from_bed_code?: number | null;
 
     @IsInt()
     @Type(() => Number)
     @IsNotEmpty()
-    to_bed_code: number;
+    to_bed_code?: number | null;
 
     @IsString()
     @IsOptional()
