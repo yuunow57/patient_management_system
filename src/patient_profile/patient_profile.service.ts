@@ -1,12 +1,13 @@
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PatientProfileEntity } from './patient_profile.entity';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, In, Repository } from 'typeorm';
 import { CreateProfileDto } from './dto/create-profile.dto';
 import { HospitalStructureInfoEntity } from 'src/hospital_structure_info/hospital_structure_info.entity';
 import { PatientWarningStateService } from 'src/patient_warning_state/patient_warning_state.service';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { PatientBedHistoryService } from 'src/patient_bed_history/patient_bed_history.service';
+import { empty } from 'rxjs';
 
 @Injectable()
 export class PatientProfileService {
@@ -172,5 +173,43 @@ export class PatientProfileService {
         patient.is_deleted = 1;
 
         await this.profileRepository.save(patient);
+    }
+
+    // GET /patient/profile/bed-history?hospital_st_code={hospital_st_code}
+    async findEmptyBed(floorCode: number) {
+        const floor = await this.structureRepository.findOne({
+            where: { hospital_st_code: floorCode }
+        });
+        if (!floor) throw new NotFoundException('존재하지 않는 층입니다');
+
+        const rooms = await this.structureRepository.find({
+            where: { parents: { hospital_st_code: floorCode } }
+        });
+
+        const roomCodes = rooms.map(r => r.hospital_st_code);
+        if (roomCodes.length === 0) return [];
+
+        const beds = await this.structureRepository.find({
+            where: { parents: In(roomCodes) },
+            relations: ['parents'],
+        });
+
+        const usedPatients = await this.profileRepository.find({
+            where: { is_deleted: 0 },
+            relations: ['bedCode'],
+        });
+
+        const usedBedCodes = new Set(
+            usedPatients.map(p => p.bedCode.hospital_st_code),
+        );
+
+        const emptyBeds = beds.filter(
+            bed => !usedBedCodes.has(bed.hospital_st_code),
+        );
+
+        return emptyBeds.map(bed => ({
+            hospital_st_code: bed.hospital_st_code,
+            value: `${bed.parents?.category_name} ${bed.category_name}`,
+        }));
     }
 }

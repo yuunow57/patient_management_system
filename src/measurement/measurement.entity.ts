@@ -12,15 +12,9 @@ export class MeasurementEntity {
     @OneToMany(() => WeightMeasurementEntity, weight => weight.measurementCode)
     weights: WeightMeasurementEntity[];   
 
-    @Column({ type: 'bigint' })
-    device_code: number;
-
     @ManyToOne(() => DeviceStateEntity, state => state.measurements)
     @JoinColumn({ name: 'device_code' })
     deviceState: DeviceStateEntity;
-
-    @Column({ type: 'bigint' })
-    patient_code: number;
 
     @ManyToOne(() => PatientProfileEntity, patient => patient.measurements)
     @JoinColumn({ name: 'patient_code' })

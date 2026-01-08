@@ -5,7 +5,7 @@ export class WeightValueDto {
     @IsInt()
     @Type(() => Number)
     @IsNotEmpty()
-    sensor_index: number;
+    sensor: number;
 
     @IsNumber()
     @Type(() => Number)

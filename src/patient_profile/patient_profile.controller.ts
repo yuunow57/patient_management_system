@@ -39,4 +39,10 @@ export class PatientProfileController {
     async delete(@Param('patient_code') patientCode: number) {
         return this.profileService.delete(patientCode);
     }
+
+    @ResponseMessage('등록 가능한 침대 조회 성공')
+    @Get('profile/empty-bed')
+    async findEmptyBed(@Query('hospital_st_code') floorCode: number) {
+        return this.profileService.findEmptyBed(floorCode);
+    }
 }
