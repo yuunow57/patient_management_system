@@ -53,7 +53,7 @@ export class HospitalEmailController {
     }
 
     @ResponseMessage('병원정보 삭제 성공')
-    @Delete('email/delete/:hopital_code')
+    @Delete('email/delete/:hospital_code')
     async delete(@Param('hospital_code') hospitalCode: number) {
         return this.hospitalEmailService.delete(hospitalCode);
     }
