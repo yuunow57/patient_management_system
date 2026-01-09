@@ -86,6 +86,7 @@ export class HospitalStructureInfoService {
             where: {
                 hospital_code: hospitalCode,
                 level: 1,
+                is_deleted: 0,
             },
             select: ['hospital_st_code', 'category_name', 'sort_order']
         });

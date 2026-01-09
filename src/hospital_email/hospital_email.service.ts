@@ -40,7 +40,12 @@ export class HospitalEmailService {
     
     // POST /auth/login
     async login(dto: LoginEmailDto) {
-        const email = await this.emailRepository.findOneBy({ hospital_id: dto.hospital_id });
+        const email = await this.emailRepository.findOne({ 
+            where: {
+            hospital_id: dto.hospital_id,
+            is_deleted: 0,
+            }
+        });
 
         if (!email) throw new UnauthorizedException('로그인 실패, 아이디나 비밀번호를 확인해 주세요');
 
