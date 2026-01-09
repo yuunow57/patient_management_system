@@ -39,6 +39,13 @@ export class MeasurementService {
             });
             if (!patient) throw new NotFoundException('침상에 배정된 환자가 없습니다.');
 
+            const lastMeasurement = await this.measureRepository.findOne({
+                where: { deviceState: { device_code: dto.device_code } },
+                order: { create_at: 'DESC' },
+            });
+
+            const now = new Date();
+
             const measurement = manager.create(MeasurementEntity, {
                 deviceState: device,
                 patientCode: patient,

@@ -8,6 +8,7 @@ import { PatientWarningStateService } from 'src/patient_warning_state/patient_wa
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { PatientBedHistoryService } from 'src/patient_bed_history/patient_bed_history.service';
 import { empty } from 'rxjs';
+import { DevicePositionEntity } from 'src/device_position/device_position.entity';
 
 @Injectable()
 export class PatientProfileService {
@@ -16,6 +17,8 @@ export class PatientProfileService {
         private readonly profileRepository: Repository<PatientProfileEntity>,
         @InjectRepository(HospitalStructureInfoEntity)
         private readonly structureRepository: Repository<HospitalStructureInfoEntity>,
+        @InjectRepository(DevicePositionEntity)
+        private readonly posRepository: Repository<DevicePositionEntity>,
 
         private readonly warningService: PatientWarningStateService,
         private readonly historyService: PatientBedHistoryService,
@@ -83,6 +86,9 @@ export class PatientProfileService {
         });
         if (!patient) throw new NotFoundException('존재하지 않는 환자입니다.');
 
+        const device_position = await this.posRepository.findOne({ where: { device_loc_code : patient.bedCode?.hospital_st_code } });
+
+
         const bed = await this.structureRepository.findOneBy({ hospital_st_code: patient.bedCode?.hospital_st_code });
         if (!bed) throw new NotFoundException('존재하지 않는 침상입니다.');
 
@@ -93,6 +99,7 @@ export class PatientProfileService {
             age: patient.age,
             birth_date: patient.birth_date,
             bed_code: patient.bedCode?.hospital_st_code,
+            device_code: device_position?.device_code,
             nurse: patient.nurse,
             doctor: patient.doctor,
             diagnosis: patient.diagnosis,

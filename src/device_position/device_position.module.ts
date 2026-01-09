@@ -7,6 +7,6 @@ import { DevicePositionEntity } from './device_position.entity';
 @Module({
   imports: [TypeOrmModule.forFeature([DevicePositionEntity])],
   controllers: [DevicePositionController],
-  providers: [DevicePositionService]
+  providers: [DevicePositionService],
 })
 export class DevicePositionModule {}

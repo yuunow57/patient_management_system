@@ -7,10 +7,11 @@ import { HospitalStructureInfoEntity } from 'src/hospital_structure_info/hospita
 import { PatientWarningStateEntity } from 'src/patient_warning_state/patient_warning_entity';
 import { PatientWarningStateModule } from 'src/patient_warning_state/patient_warning_state.module';
 import { PatientBedHistoryModule } from 'src/patient_bed_history/patient_bed_history.module';
+import { DevicePositionEntity } from 'src/device_position/device_position.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([PatientProfileEntity, HospitalStructureInfoEntity, PatientWarningStateEntity, 
+    TypeOrmModule.forFeature([PatientProfileEntity, HospitalStructureInfoEntity, PatientWarningStateEntity, DevicePositionEntity, 
     ]),
     PatientWarningStateModule,
     PatientBedHistoryModule,
