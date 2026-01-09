@@ -1,4 +1,4 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PatientProfileEntity } from './patient_profile.entity';
 import { DataSource, In, Repository } from 'typeorm';
@@ -192,6 +192,7 @@ export class PatientProfileService {
             where: { hospital_st_code: floorCode }
         });
         if (!floor) throw new NotFoundException('존재하지 않는 층입니다');
+        if (floor.level !== 2) throw new BadRequestException('층 코드를 입력해 주세요');
 
         const rooms = await this.structureRepository.find({
             where: { parents: { hospital_st_code: floorCode } }

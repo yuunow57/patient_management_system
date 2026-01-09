@@ -39,55 +39,67 @@ export class MeasurementService {
             });
             if (!patient) throw new NotFoundException('침상에 배정된 환자가 없습니다.');
 
-            const lastMeasurement = await this.measureRepository.findOne({
-                where: { deviceState: { device_code: dto.device_code } },
+
+            const lastMeasurement = await manager.findOne(MeasurementEntity, {
+                where: { 
+                    deviceState: { device_code: dto.device_code },
+                    patientCode: { patient_code: patient.patient_code},
+                 },
                 order: { create_at: 'DESC' },
             });
 
-            const now = new Date();
+            let baseTime = lastMeasurement
+                ? new Date(lastMeasurement.create_at)
+                : new Date(Date.now() - dto.measurements.length * 60_000);
 
-            const measurement = manager.create(MeasurementEntity, {
-                deviceState: device,
-                patientCode: patient,
-                temperature: dto.temperature,
-                body_temperature: dto.body_temperature,
-                humidity: dto.humidity,
-                description: dto.description,
-            });
+            const results: any[] = [];
 
-            const savedMeasurement = await manager.save(measurement);
+            for (let i = 0; i < dto.measurements.length; i++) {
+                baseTime = new Date(baseTime.getTime() + 60_000);
 
-            let weightEntities: WeightMeasurementEntity[] = [];
+                const m = dto.measurements[i];
 
-            if (dto.weights?.length) {
-                weightEntities = dto.weights.map(w =>
+                const measurement = manager.create(MeasurementEntity, {
+                    deviceState: device,
+                    patientCode: patient,
+                    temperature: m.temperature,
+                    body_temperature: m.body_temperature,
+                    humidity: m.humidity,
+                    create_at: baseTime,
+                });
+
+                const saved = await manager.save(measurement);
+
+                const weightEntities = m.weights.map(w => 
                     manager.create(WeightMeasurementEntity, {
-                        measurementCode: savedMeasurement,
+                        measurementCode: saved,
                         sensor_index: w.sensor,
                         value: w.value,
-                    })
+                    }),
                 );
 
                 await manager.save(weightEntities);
+
+                results.push({
+                    measurement_code: saved.measurement_code,
+                    device_code: device.device_code,
+                    patient_code: patient.patient_code,
+                    temperature: saved.temperature,
+                    body_temperature: saved.body_temperature,
+                    humidity: saved.humidity,
+                    weights: weightEntities.map(w => ({
+                        sensor: w.sensor_index,
+                        value: w.value,
+                    })),
+                    create_at: saved.create_at,
+                    description: saved.description ?? null,
+                });
             }
 
             device.last_seen_at = new Date();
             await manager.save(device);
 
-            return {
-                measurement_code: measurement.measurement_code,
-                device_code: measurement.deviceState.device_code,
-                patient_code: measurement.patientCode.patient_code,
-                temperature: measurement.temperature,
-                body_temperature: measurement.body_temperature,
-                humidity: measurement.humidity,
-                weights: weightEntities.map(w => ({
-                    sensor: w.sensor_index,
-                    value: w.value,
-                })),
-                create_at: measurement.create_at,
-                description: measurement.description ?? null,
-            };
+            return results;
         });
     }
 
