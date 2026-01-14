@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MeasurementEntity } from './measurement.entity';
-import { Repository } from 'typeorm';
+import { LessThan, Repository } from 'typeorm';
 import { CreateMeasurementDto } from './dto/create-measurement.dto';
 import { DataSource } from 'typeorm';
 import { DeviceStateEntity } from 'src/device_state/device_state.entity';
@@ -103,23 +103,27 @@ export class MeasurementService {
         });
     }
 
-    // GET /measurement/basic?device_code={device_code}&patient_code={patient_code}
-    async find(deviceCode: number, patientCode: number) {
+    // GET /measurement/basic?device_code={device_code}&patient_code={patient_code}&measurement_code={cursor}
+    async find(deviceCode: number, patientCode: number, cursor?: number) {
+
+        const where: any = {
+            deviceState: { device_code: deviceCode },
+            patientCode: { patient_code: patientCode },
+        };
+
+        if (cursor) where.measurement_code = LessThan(cursor);
 
         const measurements = await this.measureRepository.find({
-            where: {
-                deviceState: { device_code: deviceCode },
-                patientCode: { patient_code: patientCode },
-            },
+            where,
             order: { create_at: 'DESC' },
             take: 300,
         });
+
         if (!measurements.length) throw new NotFoundException('측정 데이터가 없습니다.');
 
-        const sorted = measurements.reverse();
+        const sorted = [...measurements].reverse();
 
         const result: {
-            measurement_code: number;
             device_code: number;
             patient_code: number;
             temperature: number;
@@ -130,14 +134,13 @@ export class MeasurementService {
 
         for (let i = 0; i < sorted.length; i += 10) {
             const chunk = sorted.slice(i, i + 10);
-            if (chunk.length < 10) continue;
+            if (chunk.length < 10) break;
 
             const avgTemperature = chunk.reduce((sum, m) => sum + (m.temperature ?? 0), 0) / 10;
             const avgBodyTemperature = chunk.reduce((sum, m) => sum + (m.body_temperature ?? 0), 0) / 10;
             const avgHumidity = chunk.reduce((sum, m) => sum + (m.humidity ?? 0), 0) / 10;
 
             result.push({
-                measurement_code: chunk[chunk.length - 1].measurement_code,
                 device_code: deviceCode,
                 patient_code: patientCode,
                 temperature: Number(avgTemperature.toFixed(2)),
@@ -147,6 +150,11 @@ export class MeasurementService {
             });
         }
 
-        return result;
+        const nextCursor = measurements.length === 300 ? measurements[measurements.length - 1].measurement_code : null;
+
+        return {
+            cursor: nextCursor,
+            result
+        }
     }
 }

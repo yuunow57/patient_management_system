@@ -17,7 +17,11 @@ export class MeasurementController {
 
     @ResponseMessage('측정값 조회 성공')
     @Get()
-    async find(@Query('device_code') deviceCode: number, @Query('patient_code') patientCode: number) {
-        return this.measureService.find(deviceCode, patientCode);
+    async find(
+        @Query('device_code') deviceCode: number,
+        @Query('patient_code') patientCode: number,
+        @Query('measurement_code') cursor?: number
+    ) {
+        return this.measureService.find(deviceCode, patientCode, cursor);
     }
 }

@@ -29,7 +29,7 @@ export class MeasurementEntity {
     @Column({ type: 'tinyint', nullable: true})
     humidity: number;
     
-    @CreateDateColumn()
+    @Column({ type: 'datetime' })
     create_at: Date;
 
     @Column({ nullable: true })

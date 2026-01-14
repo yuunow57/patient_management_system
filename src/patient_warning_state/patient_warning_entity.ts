@@ -14,6 +14,9 @@ export class PatientWarningStateEntity {
     @Column({ type: 'tinyint', default: 0 })
     warning_state: number;
 
+    @Column({ type: 'datetime', nullable: true })
+    last_change_at: Date;
+
     @CreateDateColumn()
     create_at: Date;
 

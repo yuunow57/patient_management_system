@@ -40,7 +40,7 @@ export class UpdateProfileDto {
 
     @IsString()
     @IsOptional()
-    diagnosis?: string;
+    diagnosis: string;
 
     @IsString()
     @IsOptional()

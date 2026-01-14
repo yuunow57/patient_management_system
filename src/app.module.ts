@@ -21,10 +21,12 @@ import { PatientWarningStateEntity } from './patient_warning_state/patient_warni
 import { WeightMeasurementEntity } from './weight_measurement/weight_measurement.entity';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
+    ScheduleModule.forRoot(),
     TypeOrmModule.forRoot({
       type: 'mariadb',
       host: process.env.DB_HOST,
