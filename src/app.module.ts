@@ -22,6 +22,8 @@ import { WeightMeasurementEntity } from './weight_measurement/weight_measurement
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
 import { ScheduleModule } from '@nestjs/schedule';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
 
 @Module({
   imports: [
@@ -58,8 +60,9 @@ import { ScheduleModule } from '@nestjs/schedule';
     PatientWarningStateModule,
     WeightMeasurementModule,
   ],
-  controllers: [],
+  controllers: [AppController],
   providers: [
+    AppService,
     {
       provide: APP_INTERCEPTOR,
       useClass: ResponseInterceptor,
