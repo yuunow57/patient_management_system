@@ -6,6 +6,7 @@ export interface WeightRow {
 }
 
 const CHANGE_RATIO = 0.15;        // 평균 대비 15%
+const CHANGE_ABSOLUTE = 100_000;
 const CONTINUOUS_MINUTES = 3;     // 3분 연속
 const MIN_SENSORS_CHANGED = 1;    // 한 measurement에서 최소 몇 개 센서가 튀면 "변화"로 볼지
 
@@ -27,9 +28,8 @@ export function calcSensorAverages(rows: WeightRow[]) {
 }
 
 function isPostureChanged(value: number, avg: number): boolean {
-  if (!avg || avg === 0) return false;
-  const diffRatio = Math.abs(value - avg) / avg;
-  return diffRatio >= CHANGE_RATIO;
+  const diff = Math.abs(value - avg);
+  return diff >= CHANGE_ABSOLUTE;
 }
 
 /**
