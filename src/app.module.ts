@@ -48,7 +48,7 @@ import { AppService } from './app.service';
         PatientWarningStateEntity,
         WeightMeasurementEntity,
       ],
-      synchronize: true,
+      synchronize: false,
     }),
     DeviceStateModule,
     MeasurementModule,
